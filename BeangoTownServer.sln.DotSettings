@@ -1,0 +1,10 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:Boolean x:Key="/Default/Environment/Filtering/ExcludeCoverageFilters/=BeangoTownServer_002EApplication_002EContracts_003B_002A_003B_002A_003B_002A/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/Environment/Filtering/ExcludeCoverageFilters/=BeangoTownServer_002EApplication_002ETests_003B_002A_003B_002A_003B_002A/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/Environment/Filtering/ExcludeCoverageFilters/=BeangoTownServer_002EApplication_003B_002A_003BBeangoTownServer_002EBeangoTownServerApplicationModule_003B_003CConfigureServices_003Eb_005F_005F0_005F0/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/Environment/Filtering/ExcludeCoverageFilters/=BeangoTownServer_002EApplication_003B_002A_003BBeangoTownServer_002ECommon_002E_002A_003B_002A/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/Environment/Filtering/ExcludeCoverageFilters/=BeangoTownServer_002EApplication_003B_002A_003BBeangoTownServer_002EContract_002E_002A_003B_002A/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/Environment/Filtering/ExcludeCoverageFilters/=BeangoTownServer_002EApplication_003B_002A_003BBeangoTownServer_002EPortkey_002E_002A_003B_002A/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/Environment/Filtering/ExcludeCoverageFilters/=BeangoTownServer_002EHttpApi_002EHost_003B_002A_003B_002A_003B_002A/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/Environment/Filtering/ExcludeCoverageFilters/=BeangoTownServer_002ERedis_003B_002A_003B_002A_003B_002A/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/Environment/Filtering/ExcludeCoverageFilters/=BeangoTownServer_002ETestBase_003B_002A_003B_002A_003B_002A/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>
