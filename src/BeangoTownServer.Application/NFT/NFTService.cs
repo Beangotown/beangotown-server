@@ -9,9 +9,11 @@ using Google.Protobuf.WellKnownTypes;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Volo.Abp;
+using Volo.Abp.Auditing;
 
 namespace BeangoTownServer.NFT;
 
+[RemoteService(false), DisableAuditing]
 public class NFTService : BeangoTownServerAppService, INFTService
 {
     private readonly string _beanPassCacheKeyPrefix = "BeanPass_";
