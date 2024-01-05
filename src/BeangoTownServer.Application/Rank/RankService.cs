@@ -104,7 +104,13 @@ public class RankService : BeangoTownServerAppService, IRankService
         if (rankResultDto.SelfRank == null)
         {
             var userSeasonRankIndex = await _userSeasonWeekRepository.GetAsync(id);
-            rankResultDto.SelfRank = ConvertSeasonRankDto(getRankDt.CaAddress, userSeasonRankIndex);
+            var getRankingHisDto = new GetRankingHisDto
+            {
+                SeasonId = seasonIndex.Id,
+                CaAddress = getRankDt.CaAddress
+            };
+            var weekRankDtos = await GetWeekRankDtoListAsync(getRankingHisDto);
+            rankResultDto.SelfRank = ConvertSeasonRankDto(getRankDt.CaAddress, userSeasonRankIndex, weekRankDtos);
         }
 
         return rankResultDto;
@@ -113,17 +119,51 @@ public class RankService : BeangoTownServerAppService, IRankService
 
     public async Task<RankingHisResultDto> GetRankingHistoryAsync(GetRankingHisDto getRankingHisDto)
     {
+       
         if (string.IsNullOrEmpty(getRankingHisDto.CaAddress) || string.IsNullOrEmpty(getRankingHisDto.SeasonId))
             return new RankingHisResultDto();
+        var seasonIndex = await _rankSeasonRepository.GetAsync(getRankingHisDto.SeasonId);
+        if (seasonIndex == null) return new RankingHisResultDto();
 
         var id = IdGenerateHelper.GenerateId(getRankingHisDto.SeasonId,
             AddressHelper.ToShortAddress(getRankingHisDto.CaAddress));
         var userSeasonRankIndex = await _userSeasonWeekRepository.GetAsync(id);
-        var seasonRankDto = ConvertSeasonRankDto(getRankingHisDto.CaAddress, userSeasonRankIndex);
-        
+        var weekRankDtos = await GetWeekRankDtoListAsync(getRankingHisDto);
+        var seasonRankDto = ConvertSeasonRankDto(getRankingHisDto.CaAddress, userSeasonRankIndex, weekRankDtos);
         var rankingHisResultDto = await _rankProvider.GetRankingHistoryAsync(getRankingHisDto);
+        if (!rankingHisResultDto.Weeks.IsNullOrEmpty())
+            foreach (var weekRankDto in rankingHisResultDto.Weeks)
+            {
+                var weekRankExists = weekRankDtos.Exists(weekRank =>
+                    weekRankDto.Week == weekRank.Week );
+                if (!weekRankExists) weekRankDtos.Add(weekRankDto);
+            }
 
+        for (var i = 0; i < seasonIndex.WeekInfos.Count; i++)
+        {
+            if (seasonIndex.WeekInfos[i].RankBeginTime.CompareTo(DateTime.UtcNow) == 1) break;
+            var weekRankExists = weekRankDtos.Exists(weekRank =>
+                weekRank.Week == i + 1);
+            if (!weekRankExists)
+                weekRankDtos.Add(new WeekRankDto
+                {
+                    Week = i + 1,
+                    CaAddress = getRankingHisDto.CaAddress,
+                    Score = 0,
+                    Rank = -1
+                });
+        }
 
+        weekRankDtos.Sort((p1, p2) => p1.Week.CompareTo(p2.Week));
+        return new RankingHisResultDto
+        {
+            Weeks = weekRankDtos,
+            Season = seasonRankDto
+        };
+    }
+
+    private async Task<List<WeekRankDto>> GetWeekRankDtoListAsync(GetRankingHisDto getRankingHisDto)
+    {
         var mustQuery = new List<Func<QueryContainerDescriptor<UserWeekRankIndex>, QueryContainer>>();
         mustQuery.Add(q => q.Term(i => i.Field(f => f.SeasonId).Value(getRankingHisDto.SeasonId)));
         mustQuery.Add(q => q.Term(i => i.Field(f => f.CaAddress).Value(getRankingHisDto.CaAddress)));
@@ -143,19 +183,7 @@ public class RankService : BeangoTownServerAppService, IRankService
             weekRankDtos.Add(userWeekRank);
         }
 
-        if (!rankingHisResultDto.Weeks.IsNullOrEmpty())
-            foreach (var weekRankDto in rankingHisResultDto.Weeks)
-            {
-                var weekRankExists = weekRankDtos.Exists(weekRank =>
-                    weekRankDto.Week == weekRank.Week );
-                if (!weekRankExists) weekRankDtos.Add(weekRankDto);
-            }
-
-        return new RankingHisResultDto
-        {
-            Weeks = weekRankDtos,
-            Season = seasonRankDto
-        };
+        return weekRankDtos;
     }
 
     public async Task SyncRankDataAsync()
@@ -282,15 +310,16 @@ public class RankService : BeangoTownServerAppService, IRankService
     }
 
     private RankDto ConvertSeasonRankDto(string caAddress,
-        UserSeasonRankIndex userSeasonRankIndex)
+        UserSeasonRankIndex userSeasonRankIndex, List<WeekRankDto> weekRankDtos)
     {
         if (userSeasonRankIndex == null)
-            return new RankDto
+            userSeasonRankIndex = new UserSeasonRankIndex
             {
                 CaAddress = caAddress,
-                Score = 0,
+                SumScore = 0,
                 Rank = BeangoTownConstants.UserDefaultRank
             };
+        if (!weekRankDtos.IsNullOrEmpty()) userSeasonRankIndex.SumScore = weekRankDtos.Select(item => item.Score).Max();
 
         return _objectMapper.Map<UserSeasonRankIndex, RankDto>(userSeasonRankIndex);
     }
