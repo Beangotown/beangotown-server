@@ -7,6 +7,7 @@ namespace BeangoTownServer;
 
 [DependsOn(
     typeof(AbpDistributedLockingModule),
+    typeof(BeangoTownServerDomainModule),
     typeof(BeangoTownServerApplicationContractsModule)
 )]
 public class BeangoTownServerApplicationModule : AbpModule

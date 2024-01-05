@@ -10,20 +10,23 @@
     <ItemGroup>
         <PackageReference Include="AElf.Client" Version="1.1.0" />
         <PackageReference Include="AElf.CSharp.Core" Version="1.2.3" />
-        <PackageReference Include="AElf.Sdk.CSharp" Version="1.2.3" />
-        <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-        <PackageReference Include="Volo.Abp.AutoMapper" Version="7.0.0" />
-        <PackageReference Include="Volo.Abp.Core" Version="7.0.0" />
-        <PackageReference Include="Google.Protobuf" Version="3.19.4" />
-        <PackageReference Include="Volo.Abp.DistributedLocking" Version="7.0.0" />
-        <PackageReference Include="Volo.Abp.TenantManagement.Application" Version="7.0.0" />
-        <PackageReference Include="Volo.Abp.FeatureManagement.Application" Version="7.0.0" />
-        <PackageReference Include="Volo.Abp.SettingManagement.Application" Version="7.0.0" />
+        <PackageReference Include="AElf.Sdk.CSharp" Version="1.2.3"/>
+        <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
+        <PackageReference Include="Volo.Abp.AutoMapper" Version="7.0.0"/>
+        <PackageReference Include="Volo.Abp.Core" Version="7.0.0"/>
+        <PackageReference Include="Google.Protobuf" Version="3.19.4"/>
+        <PackageReference Include="Volo.Abp.DistributedLocking" Version="7.0.0"/>
+        <PackageReference Include="Volo.Abp.TenantManagement.Application" Version="7.0.0"/>
+        <PackageReference Include="Volo.Abp.FeatureManagement.Application" Version="7.0.0"/>
+        <PackageReference Include="Volo.Abp.SettingManagement.Application" Version="7.0.0"/>
+        <PackageReference Include="GraphQL.Client.Serializer.Newtonsoft" Version="5.1.0"/>
+        <PackageReference Include="GraphQL.Client" Version="5.1.0"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\BeangoTownServer.Application.Contracts\BeangoTownServer.Application.Contracts.csproj" />
+        <ProjectReference Include="..\BeangoTownServer.Domain\BeangoTownServer.Domain.csproj" />
     </ItemGroup>
 
     <ItemGroup>

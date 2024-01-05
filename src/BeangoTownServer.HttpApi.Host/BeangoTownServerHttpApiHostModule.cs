@@ -1,10 +1,17 @@
 using System;
 using System.Linq;
+using AElf.Indexing.Elasticsearch.Options;
 using AutoResponseWrapper;
 using BeangoTownServer.Contract;
 using BeangoTownServer.NFT;
 using BeangoTownServer.Portkey;
 using BeangoTownServer.Redis;
+using BeangoTownServer.Worker;
+using Medallion.Threading;
+using Medallion.Threading.Redis;
+using GraphQL.Client.Abstractions;
+using GraphQL.Client.Http;
+using GraphQL.Client.Serializer.Newtonsoft;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +25,7 @@ using Volo.Abp.AspNetCore.Serilog;
 using Volo.Abp.Autofac;
 using Volo.Abp.Caching;
 using Volo.Abp.Caching.StackExchangeRedis;
+using Volo.Abp.DistributedLocking;
 using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
 using Volo.Abp.Swashbuckle;
@@ -28,10 +36,12 @@ namespace BeangoTownServer;
     typeof(BeangoTownServerHttpApiModule),
     typeof(BeangoTownServerRedisModule),
     typeof(BeangoTownServerApplicationModule),
+    typeof(BeangoTownServerWorkerModule),
     typeof(AbpCachingStackExchangeRedisModule),
     typeof(AbpAutofacModule),
     typeof(AbpAspNetCoreSerilogModule),
-    typeof(AbpSwashbuckleModule)
+    typeof(AbpSwashbuckleModule),
+    typeof(AbpDistributedLockingModule)
 )]
 public class BeangoTownServerHttpApiHostModule : AbpModule
 {
@@ -42,11 +52,15 @@ public class BeangoTownServerHttpApiHostModule : AbpModule
         Configure<ChainOptions>(configuration.GetSection("Chains"));
         Configure<PortkeyOptions>(configuration.GetSection("Portkey"));
         Configure<UserActivityOptions>(configuration.GetSection("UserActivity"));
+        Configure<WorkerOptions>(configuration.GetSection("Worker"));
         ConfigureConventionalControllers();
         ConfigureCache(context, configuration);
+        ConfigureEsIndexCreation();
         ConfigureLocalization();
         ConfigureCors(context, configuration);
         ConfigureSwaggerServices(context, configuration);
+        ConfigureDistributedLocking(context, configuration);
+        ConfigureGraphQl(context, configuration);
         context.Services.AddAutoResponseWrapper();
     }
 
@@ -56,6 +70,11 @@ public class BeangoTownServerHttpApiHostModule : AbpModule
             .Connect(configuration["Redis:Configuration"]);
         context.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
         Configure<AbpDistributedCacheOptions>(options => { options.KeyPrefix = "BeangoTownServer:"; });
+    }
+    
+    private void ConfigureEsIndexCreation()
+    {
+        Configure<IndexCreateOption>(x => { x.AddModule(typeof(BeangoTownServerDomainModule)); });
     }
 
     private void ConfigureConventionalControllers()
@@ -175,5 +194,22 @@ public class BeangoTownServerHttpApiHostModule : AbpModule
                 });
             }
         );
+    }
+    
+    private void ConfigureDistributedLocking(ServiceConfigurationContext context, IConfiguration configuration)
+    {
+        context.Services.AddSingleton<IDistributedLockProvider>(sp =>
+        {
+            var connection = ConnectionMultiplexer.Connect(configuration["Redis:Configuration"]);
+            return new RedisDistributedSynchronizationProvider(connection.GetDatabase());
+        });
+    }
+
+    private void ConfigureGraphQl(ServiceConfigurationContext context,
+        IConfiguration configuration)
+    {
+        context.Services.AddSingleton(new GraphQLHttpClient(configuration["GraphQL:Configuration"],
+            new NewtonsoftJsonSerializer()));
+        context.Services.AddScoped<IGraphQLClient>(sp => sp.GetRequiredService<GraphQLHttpClient>());
     }
 }
