@@ -12,7 +12,6 @@ namespace BeangoTownServer
     [DependsOn(
         typeof(BeangoTownServerDomainSharedModule),
         typeof(AbpTenantManagementDomainModule),
-        typeof(AbpEmailingModule),
         typeof(AElfIndexingElasticsearchModule)
     )]
     public class BeangoTownServerDomainModule : AbpModule
