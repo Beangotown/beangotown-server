@@ -11,6 +11,9 @@
           </Exclude> <!-- [Assembly-Filter]Type-Filter -->
           <ExcludeByFile>
           **/test/**/*.cs
+          ,**/src/BeangoTownServer.Domain/**/*.cs
+          ,**/src/BeangoTownServer.Domain.Shared/**/*.cs
+          ,**/src/BeangoTownServer.Worker/**/*.cs
           ,**/src/BeangoTownServer.Application.Contracts/**/*.c.cs
           ,**/src/BeangoTownServer.Application.Contracts/**/*.g.cs
           ,**/src/BeangoTownServer.Application.Contracts/Contract/*.cs

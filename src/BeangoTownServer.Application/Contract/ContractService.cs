@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using AElf.Types;
 using BeangoTownServer.Cache;
 using Microsoft.Extensions.Options;
 using Volo.Abp.DependencyInjection;
@@ -32,6 +33,12 @@ public class ContractService : IContractService, ISingletonDependency
         await _cacheProvider.SetAsync(_blockHeight + defaultChainId, newBlockHeight.ToString(),
             TimeSpan.FromMilliseconds(500));
         return newBlockHeight;
+    }
+
+    public async Task<Hash> GetRandomHashAsync()
+    {
+        var height = await GetBlockHeightAsync();
+        return await _contractProvider.GetRandomHash(height, GetDefaultChainId());
     }
 
     private string GetDefaultChainId()

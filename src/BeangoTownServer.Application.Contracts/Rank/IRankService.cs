@@ -12,4 +12,5 @@ public interface IRankService
     public Task<RankingHisResultDto> GetRankingHistoryAsync(GetRankingHisDto getRankingHisDto);
 
     public Task SyncRankDataAsync();
+    public Task SyncGameDataAsync();
 }

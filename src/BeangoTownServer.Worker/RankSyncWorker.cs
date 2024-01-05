@@ -25,6 +25,7 @@ public class RankSyncWorker : AsyncPeriodicBackgroundWorkerBase
     private readonly INESTRepository<UserSeasonRankIndex, string> _userSeasonWeekRepository;
     private readonly INESTRepository<RankSeasonConfigIndex, string> _rankSeasonRepository;
     private readonly IObjectMapper _objectMapper;
+    private const int QueryOnceLimit = 1000;
 
     public RankSyncWorker(AbpAsyncTimer timer, 
         IServiceScopeFactory serviceScopeFactory,
@@ -121,36 +122,47 @@ public class RankSyncWorker : AsyncPeriodicBackgroundWorkerBase
 
     private async Task SaveRankInfoAsync(RankSeasonConfigIndex? seasonIndex, int weekNum, bool isFinished)
     {
-        var rankCount = seasonIndex.PlayerWeekRankCount;
-        var weekRankRecordDto = await _rankProvider.GetWeekRankRecordsAsync(seasonIndex.Id, weekNum, 0, rankCount);
-        if (weekRankRecordDto == null || weekRankRecordDto.GetWeekRankRecords == null ||
-            weekRankRecordDto.GetWeekRankRecords.RankingList == null) return;
-        var count = weekRankRecordDto.GetWeekRankRecords.RankingList?.Count ?? 0;
-        if (count == 0) return;
-
-        _logger.LogDebug("rankResult.Item2.Count {Count}", count);
-        var userWeekRankIndices =
-            _objectMapper.Map<List<RankDto>, List<UserWeekRankIndex>>(weekRankRecordDto.GetWeekRankRecords.RankingList);
-        var i = 0;
-        foreach (var item in userWeekRankIndices)
+        var skipCount = 0;
+        var rank = 0;
+        while (true)
         {
-            i++;
-            item.Id = IdGenerateHelper.GenerateId(seasonIndex.Id, weekNum, i);
-            item.SeasonId = seasonIndex.Id;
-            item.Week = weekNum;
-            item.Rank = i;
-            item.UpdateTime = DateTime.UtcNow;
+            var weekRankRecords =
+                await _rankProvider.GetWeekRankRecordsAsync(seasonIndex.Id, weekNum, skipCount, QueryOnceLimit);
+            if (weekRankRecords == null || weekRankRecords.GetWeekRankRecords == null ||
+                weekRankRecords.GetWeekRankRecords.RankingList == null) break;
+            var rankCount = weekRankRecords.GetWeekRankRecords.RankingList?.Count ?? 0;
+            _logger.LogDebug("rankResult.Item2.Count {Count}", rankCount);
+            if (rankCount == 0) break;
+            skipCount += QueryOnceLimit;
+            var weekList =
+                _objectMapper.Map<List<RankDto>, List<UserWeekRankIndex>>(weekRankRecords.GetWeekRankRecords
+                    .RankingList);
+            var now = DateTime.UtcNow;
+            foreach (var item in weekList)
+            {
+                if (rank < seasonIndex.PlayerWeekRankCount)
+                {
+                    item.Rank = ++rank;
+                }
+                item.Id = IdGenerateHelper.GenerateId(seasonIndex.Id, weekNum,
+                    AddressHelper.ToShortAddress(item.CaAddress));
+                item.SeasonId = seasonIndex.Id;
+                item.Week = weekNum;
+                item.UpdateTime = now;
+            }
+
+            await _userRankWeekRepository.BulkAddOrUpdateAsync(weekList);
+            if (isFinished)
+                foreach (var userWeek in weekList)
+                    await SaveSeasonUserRankAsync(userWeek);
         }
-
-        await _userRankWeekRepository.BulkAddOrUpdateAsync(userWeekRankIndices);
-
-        if (isFinished)
-            foreach (var userWeek in userWeekRankIndices)
-                await SaveSeasonUserRankAsync(userWeek);
+       
     }
 
     private async Task SaveSeasonUserRankAsync(UserWeekRankIndex item)
     {
+        if (item.Rank == BeangoTownConstants.UserDefaultRank) return;
+
         var rankSeasonUserId = IdGenerateHelper.GenerateId(item.SeasonId, AddressHelper.ToShortAddress(item.CaAddress));
         var rankSeasonUser =
             await _userSeasonWeekRepository.GetAsync(rankSeasonUserId);

@@ -26,5 +26,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\BeangoTownServer.Domain\BeangoTownServer.Domain.csproj" />
+      <ProjectReference Include="..\BeangoTownServer.Monitor\BeangoTownServer.Monitor.csproj" />
     </ItemGroup>
 </Project>

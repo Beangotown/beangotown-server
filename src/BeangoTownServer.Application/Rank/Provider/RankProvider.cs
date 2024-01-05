@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using BeangoTownServer.Common;
+using BeangoTownServer.Trace;
 using GraphQL;
 using Volo.Abp.DependencyInjection;
 
@@ -78,8 +80,9 @@ public class RankProvider : IRankProvider, ISingletonDependency
         });
         return graphQLResponse;
     }
-    
-    public async Task<WeekRankRecordDto> GetWeekRankRecordsAsync(string seasonId, int week, int skipCount, int maxResultCount)
+
+    public async Task<WeekRankRecordDto> GetWeekRankRecordsAsync(string seasonId, int week, int skipCount,
+        int maxResultCount)
     {
         var graphQLResponse = await _graphQlHelper.QueryAsync<WeekRankRecordDto>(new GraphQLRequest
         {
@@ -210,5 +213,93 @@ public class RankProvider : IRankProvider, ISingletonDependency
             }
         });
         return graphQLResponse.GetRankingHistory;
+    }
+
+    public async Task<List<GameRecordDto>> GetGoRecordsAsync()
+    {
+        var graphQLResponse = await _graphQlHelper.QueryAsync<GameRecordResultDto>(new GraphQLRequest
+        {
+            Query = @"
+			    query {
+                  getGoRecords(getGoRecordDto:{goCount:0,skipCount:0,maxResultCount:0}){
+                    id
+                    caAddress
+                    triggerTime
+               }
+            }"
+        });
+        return graphQLResponse.GetGoRecords;
+    }
+
+    public async Task<int> GetGoCountAsync(GetGoDto dto)
+    {
+        var graphQLResponse = await _graphQlHelper.QueryAsync<GameGoCountDto>(new GraphQLRequest
+        {
+            Query = @"
+			    query($startTime:DateTime!,$endTime:DateTime!,$goCount:Int!, $caAddressList:[String!],$skipCount:Int!,$maxResultCount:Int!) {
+                   getGoCount(getGoDto:{startTime:$startTime,endTime:$endTime,goCount:$goCount,caAddressList:$caAddressList,skipCount:$skipCount,maxResultCount:$maxResultCount}){
+                     goCount
+               }
+            }",
+            Variables = new
+            {
+                startTime = dto.StartTime,
+                endTime = dto.EndTime,
+                goCount = dto.GoCount,
+                caAddressList = dto.CaAddressList,
+                skipCount = dto.SkipCount,
+                maxResultCount = dto.MaxResultCount
+            }
+        });
+        return graphQLResponse.GetGoCount?.GoCount ?? 0;
+    }
+    
+    public async Task<GameHisResultDto> GetGameHistoryListAsync(GetGameHistoryDto dto)
+    {
+        var graphQLResponse = await _graphQlHelper.QueryAsync<GameHistoryResultDto>(new GraphQLRequest
+        {
+            Query = @"
+			    query($beginTime:DateTime!,$endTime:DateTime!,$caAddress:String,$skipCount:Int!,$maxResultCount:Int!) {
+                  getGameHistoryList(getGameHistoryDto:{beginTime:$beginTime,endTime:$endTime,caAddress:$caAddress,skipCount:$skipCount,maxResultCount:$maxResultCount}){
+                    gameList{
+                      id
+                      caAddress
+                      bingoTransactionInfo{
+                        triggerTime
+                      }
+                    }
+                }
+            }",
+            Variables = new
+            {
+                beginTime = dto.BeginTime,
+                endTime = dto.EndTime,
+                caAddress = dto.CaAddress,
+                skipCount = dto.SkipCount,
+                maxResultCount = dto.MaxResultCount
+            }
+        });
+        return graphQLResponse?.GetGameHistoryList;
+    }
+
+    public async Task<List<UserBalanceDto>> GetUserBalanceAsync(GetUserBalanceDto dto)
+    {
+        var graphQLResponse = await _graphQlHelper.QueryAsync<UserBalanceResultDto>(new GraphQLRequest
+        {
+            Query = @"
+            query($chainId:String!,$address:String!,$symbols:[String!]!) {
+              getUserBalanceList(userBalanceDto:{chainId:$chainId,address:$address,symbols:$symbols}){
+                symbol
+                amount
+                }
+            }",
+            Variables = new
+            {
+                chainId = dto.ChainId,
+                address = dto.CaAddress,
+                symbols = dto.Symbols
+            }
+        });
+        return graphQLResponse?.GetUserBalanceList;
     }
 }

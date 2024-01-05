@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using BeangoTownServer.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Volo.Abp.DistributedLocking;
@@ -13,6 +14,8 @@ public abstract class
     protected override void AfterAddApplication(IServiceCollection services)
     {
         services.AddSingleton(GetMockAbpDistributedLockAlwaysSuccess());
+        services.AddSingleton(GetMockIGraphQLHelper());
+
     }
 
     protected IAbpDistributedLock GetMockAbpDistributedLockAlwaysSuccess()
@@ -24,4 +27,11 @@ public abstract class
                 Task.FromResult<IAbpDistributedLockHandle>(new LocalAbpDistributedLockHandle(new SemaphoreSlim(0))));
         return mockLockProvider.Object;
     }
+    
+    private IGraphQLHelper GetMockIGraphQLHelper()
+    {
+        var mockHelper = new Mock<IGraphQLHelper>();
+        return mockHelper.Object;
+    }
+
 }
