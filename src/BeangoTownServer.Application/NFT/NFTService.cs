@@ -116,7 +116,8 @@ public class NFTService : BeangoTownServerAppService, INFTService
                 Reason = ClaimBeanPassStatus.ElfAmountEnough.ToString()
             };
         var time = await _portkeyProvider.GetCaHolderCreateTimeAsync(input);
-        if (time == 0) throw new UserFriendlyException("Syncing on-chain account info");
+        if (time == 0)
+            throw new UserFriendlyException(BeangoTownConstants.SyncingMessage, BeangoTownConstants.SyncingCode);
         var begin = DateTimeHelper.ParseDateTimeByStr(_userActivityOptions.BeginTime);
         var end = DateTimeHelper.ParseDateTimeByStr(_userActivityOptions.EndTime);
         var createTime = DateTimeHelper.FromUnixTimeSeconds(time);
