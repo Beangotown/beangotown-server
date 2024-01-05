@@ -11,6 +11,7 @@ namespace BeangoTownServer;
 public abstract class
     BeangoTownServerApplicationTestBase : BeangoTownServerTestBase<BeangoTownServerApplicationTestModule>
 {
+   
     protected override void AfterAddApplication(IServiceCollection services)
     {
         services.AddSingleton(GetMockAbpDistributedLockAlwaysSuccess());

@@ -14,14 +14,14 @@
           ,**/src/BeangoTownServer.Domain/**/*.cs
           ,**/src/BeangoTownServer.Domain.Shared/**/*.cs
           ,**/src/BeangoTownServer.Worker/**/*.cs
-          ,**/src/BeangoTownServer.Application.Contracts/**/*.c.cs
-          ,**/src/BeangoTownServer.Application.Contracts/**/*.g.cs
-          ,**/src/BeangoTownServer.Application.Contracts/Contract/*.cs
-          ,**/src/BeangoTownServer.Application.Contracts/NFT/*.cs
-          ,**/src/BeangoTownServer.Application.Contracts/Portkey/PortkeyOptions.cs
-          ,**/src/BeangoTownServer.Application/Contract/*.cs
+          ,**/src/BeangoTownServer.Monitor/**/*.cs
+          ,**/src/BeangoTownServer.Redis/**/*.cs
+          ,**/src/BeangoTownServer.Application.Contracts/**/*.cs
+          ,**/src/BeangoTownServer.Application/Rank/Provider/*.cs
           ,**/src/BeangoTownServer.Application/Common/*.cs
           ,**/src/BeangoTownServer.Application/Portkey/*.cs
+          ,**/src/BeangoTownServer.Application/Contract/*.cs
+          ,**/src/BeangoTownServer.Application/Trace/*.cs
           </ExcludeByFile>
           <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute</ExcludeByAttribute>
           <SingleHit>false</SingleHit>

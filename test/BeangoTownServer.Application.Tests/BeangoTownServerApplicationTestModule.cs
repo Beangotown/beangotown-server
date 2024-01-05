@@ -15,22 +15,28 @@ namespace BeangoTownServer;
 
 [DependsOn(
     typeof(BeangoTownServerApplicationModule),
+    typeof(BeangoTownServerDomainModule),
     typeof(BeangoTownServerApplicationContractsModule),
     typeof(BeangoTownServerHttpApiModule),
     typeof(AbpAutofacModule),
     typeof(AbpAspNetCoreSerilogModule),
-    typeof(AbpSwashbuckleModule)
+    typeof(AbpSwashbuckleModule),
+    typeof(BeangoTownServerDomainTestModule)
 )]
 public class BeangoTownServerApplicationTestModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {
         context.Services.AddSingleton<ICacheProvider, MockCacheProvider>();
+        Configure<AbpAutoMapperOptions>(options => { options.AddMaps<BeangoTownServerDomainModule>(); });
+
     }
 
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
+        base.ConfigureServices(context);
         Configure<AbpAutoMapperOptions>(options => { options.AddMaps<BeangoTownServerApplicationModule>(); });
+        Configure<AbpAutoMapperOptions>(options => { options.AddMaps<BeangoTownServerHttpApiModule>(); });
         Configure<UserActivityOptions>(option =>
         {
             option.BeginTime = DateTimeHelper.DatetimeToString(DateTime.Now.AddDays(-1));
@@ -60,7 +66,5 @@ public class BeangoTownServerApplicationTestModule : AbpModule
             });
             options.ChainInfos = infos;
         });
-        Configure<AbpAutoMapperOptions>(options => { options.AddMaps<BeangoTownServerHttpApiModule>(); });
-        base.ConfigureServices(context);
     }
 }
