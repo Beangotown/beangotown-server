@@ -45,7 +45,7 @@ public class PortkeyProvider : IPortkeyProvider, ISingletonDependency
         catch (Exception e)
         {
             _logger.LogError(e, "GetCaHolderCreateTimeAsync error {CaAddress}", beanPassInput.CaAddress);
-            throw new UserFriendlyException("Syncing on-chain account info");
+            throw new UserFriendlyException(BeangoTownConstants.SyncingMessage, BeangoTownConstants.SyncingCode);
         }
 
         return timeStamp;
