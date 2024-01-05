@@ -30,4 +30,9 @@ public class DateTimeHelper
     {
         return time.ToString(_dateTimeFormat);
     }
+    
+    public static string DatetimeToString(DateTime time, string dateTimeFormat)
+    {
+        return time.ToString(dateTimeFormat, CultureInfo.InvariantCulture);
+    }
 }

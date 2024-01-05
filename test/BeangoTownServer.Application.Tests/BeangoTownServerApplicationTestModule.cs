@@ -39,6 +39,15 @@ public class BeangoTownServerApplicationTestModule : AbpModule
             option.BeanPass = "BEANPASS-1";
             option.NeedElfAmount = 2;
         });
+        Configure<HalloweenActivityOptions>(option =>
+        {
+            option.BeginTime = DateTimeHelper.DatetimeToString(DateTime.Now.AddDays(-1));
+            option.EndTime = DateTimeHelper.DatetimeToString(DateTime.Now.AddDays(1));
+            option.BeanPass = new List<string>
+            {
+                "BEANPASS-2", "BEANPASS-1"
+            };
+        });
         Configure<ChainOptions>(options =>
         {
             var infos = new Dictionary<string, ChainInfo>();

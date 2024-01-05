@@ -18,6 +18,7 @@ namespace BeangoTownServer.Worker
             var backgroundWorkerManger = context.ServiceProvider.GetRequiredService<IBackgroundWorkerManager>();
             backgroundWorkerManger.AddAsync(context.ServiceProvider.GetService<RankSyncWorker>());
             backgroundWorkerManger.AddAsync(context.ServiceProvider.GetService<BatchWorker>());
+            backgroundWorkerManger.AddAsync(context.ServiceProvider.GetService<GameSyncWorker>());
         }
     }
 }

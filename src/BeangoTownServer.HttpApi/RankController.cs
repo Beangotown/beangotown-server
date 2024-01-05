@@ -34,7 +34,7 @@ public class RankController : BeangoTownServerController
 
     [HttpGet]
     [Route("season-list")]
-    public async Task<SeasonResultDto> GetRankingSeasonListAsync()
+    public async Task<SeasonResultDto> GetSeasonConfigAsync()
     {
         return await _rankService.GetSeasonConfigAsync();
     }

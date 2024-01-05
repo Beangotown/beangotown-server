@@ -22,6 +22,7 @@ using StackExchange.Redis;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.AspNetCore.Serilog;
+using Volo.Abp.Auditing;
 using Volo.Abp.Autofac;
 using Volo.Abp.Caching;
 using Volo.Abp.Caching.StackExchangeRedis;
@@ -52,9 +53,11 @@ public class BeangoTownServerHttpApiHostModule : AbpModule
         Configure<ChainOptions>(configuration.GetSection("Chains"));
         Configure<PortkeyOptions>(configuration.GetSection("Portkey"));
         Configure<UserActivityOptions>(configuration.GetSection("UserActivity"));
+        Configure<HalloweenActivityOptions>(configuration.GetSection("HalloweenActivity"));
         Configure<WorkerOptions>(configuration.GetSection("Worker"));
         ConfigureConventionalControllers();
         ConfigureCache(context, configuration);
+        ConfigureAuditing();
         ConfigureEsIndexCreation();
         ConfigureLocalization();
         ConfigureCors(context, configuration);
@@ -70,6 +73,14 @@ public class BeangoTownServerHttpApiHostModule : AbpModule
             .Connect(configuration["Redis:Configuration"]);
         context.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
         Configure<AbpDistributedCacheOptions>(options => { options.KeyPrefix = "BeangoTownServer:"; });
+    }
+    
+    private void ConfigureAuditing()
+    {
+        Configure<AbpAuditingOptions>(options =>
+        {
+            options.IsEnabled = false;
+        });
     }
     
     private void ConfigureEsIndexCreation()

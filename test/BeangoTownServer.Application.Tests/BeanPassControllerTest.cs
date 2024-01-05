@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using AElf.Client.Dto;
 using AElf.Contracts.MultiToken;
+using AElf.Types;
 using BeangoTownServer.Common;
 using BeangoTownServer.Contract;
 using BeangoTownServer.NFT;
@@ -40,38 +41,38 @@ public class BeanPassControllerTest : BeangoTownServerApplicationTestBase
     [Fact]
     public async Task IsBeanPassClaimableTest()
     {
-        var result = await _beanPassController.IsBeanPassClaimable(new BeanPassInput
+        var result = await _beanPassController.IsBeanPassClaimableAsync(new BeanPassInput
         {
             CaAddress = _newUserAddress1
         });
         result.Claimable.ShouldBe(true);
         result.Reason.ShouldBe(ClaimBeanPassStatus.NewUser.ToString());
 
-        result = await _beanPassController.IsBeanPassClaimable(new BeanPassInput
+        result = await _beanPassController.IsBeanPassClaimableAsync(new BeanPassInput
         {
             CaAddress = _elfEnoughUserAddress
         });
         result.Claimable.ShouldBe(true);
         result.Reason.ShouldBe(ClaimBeanPassStatus.ElfAmountEnough.ToString());
 
-        result = await _beanPassController.ClaimBeanPass(new BeanPassInput
+        result = await _beanPassController.ClaimBeanPassAsync(new BeanPassInput
         {
             CaAddress = _newUserAddress1
         });
         result.Claimable.ShouldBe(true);
-        result = await _beanPassController.ClaimBeanPass(new BeanPassInput
+        result = await _beanPassController.ClaimBeanPassAsync(new BeanPassInput
         {
             CaAddress = _newUserAddress1
         });
         result.Claimable.ShouldBe(false);
         result.Reason.ShouldBe(ClaimBeanPassStatus.DoubleClaim.ToString());
-        result = await _beanPassController.ClaimBeanPass(new BeanPassInput
+        result = await _beanPassController.ClaimBeanPassAsync(new BeanPassInput
         {
             CaAddress = _newUserAddress2
         });
         result.Claimable.ShouldBe(false);
         result.Reason.ShouldBe(ClaimBeanPassStatus.Claimed.ToString());
-        result = await _beanPassController.ClaimBeanPass(new BeanPassInput
+        result = await _beanPassController.ClaimBeanPassAsync(new BeanPassInput
         {
             CaAddress = _userAddress
         });
@@ -92,7 +93,21 @@ public class BeanPassControllerTest : BeangoTownServerApplicationTestBase
         mockContractProvider.Setup(o =>
                 o.SendTransferAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new SendTransactionOutput { TransactionId = "" });
-
+        mockContractProvider.Setup(o =>
+                o.GetTokenInfo(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new TokenInfo { TokenName = "AA", ExternalInfo = new ExternalInfo()
+            {
+                Value =
+                {
+                    {
+                        "__nft_image_url",
+                        "https://i.seadn.io/gcs/files/0f5cdfaaf687de2ebb5834b129a5bef3.png?auto=format&w=3840"
+                    }
+                }
+            } });
+        mockContractProvider.Setup(o =>
+                o.GetRandomHash(It.IsAny<long>(), It.IsAny<string>()))
+            .ReturnsAsync(Hash.Empty);
         return mockContractProvider.Object;
     }
 
