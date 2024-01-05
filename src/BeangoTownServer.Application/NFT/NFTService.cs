@@ -64,6 +64,7 @@ public class NFTService : BeangoTownServerAppService, INFTService
 
     public async Task<BeanPassDto> ClaimBeanPassAsync(BeanPassInput input)
     {
+        _logger.LogInformation("ClaimBeanPassAsync {CaAddress}", input.CaAddress);
         var beanPass = await IsBeanPassClaimableAsync(input);
         if (!beanPass.Claimable) return beanPass;
         if (beanPass.Reason.Equals(ClaimBeanPassStatus.NewUser.ToString()))
@@ -88,7 +89,7 @@ public class NFTService : BeangoTownServerAppService, INFTService
         await _cacheProvider.SetAsync(_beanPassCacheKeyPrefix + input.CaAddress,
             DateTime.UtcNow.ToTimestamp().ToString(),
             null);
-
+        _logger.LogInformation("ClaimBeanPassAsync success {TransactionId}", sendTransactionOutput.TransactionId);
         var info = await GetBeanPassInfoAsync(symbol);
         return new BeanPassDto
         {

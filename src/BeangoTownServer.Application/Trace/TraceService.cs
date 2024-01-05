@@ -23,6 +23,7 @@ public class TraceService : BeangoTownServerAppService, ITraceService
     private readonly ChainOptions _chainOptions;
     
     private const int CaAddressQueryOnceLimit = 50;
+    private const int QueryOnceLimit = 1000;
     private const int QueryMaxLimit = 8000;
     private const string CaAddressPrefix = "ELF";
     private const string DateFormat = "yyyy-MM-dd";
@@ -222,7 +223,18 @@ public class TraceService : BeangoTownServerAppService, ITraceService
         {
             return f.Bool(b => b.Must(mustQuery));
         }
-        var result = await _userActionRepository.GetListAsync(Filter);
-        return result.Item2.Select(a => a.CaAddress).Distinct().ToList();
+        
+        var skipCount = 0;
+        var userActionList = new List<UserActionIndex>();
+        Tuple<long, List<UserActionIndex>> result = null;
+        do
+        {
+            result = await _userActionRepository.GetListAsync(Filter, skip: skipCount, limit: QueryOnceLimit);
+            if (result.Item2.Count == 0) break;
+            userActionList.AddRange(result.Item2);
+            skipCount += QueryOnceLimit;
+        } while (result.Item2.Count >= QueryOnceLimit);
+
+        return userActionList.Select(a => a.CaAddress).Distinct().ToList();
     }
 }
