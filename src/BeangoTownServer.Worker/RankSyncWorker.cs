@@ -79,21 +79,24 @@ public class RankSyncWorker : AsyncPeriodicBackgroundWorkerBase
         if (!isFinished) return;
 
         var weekNum = Math.Max(showWeekNum, rankWeekNum);
+        // every task only execute once
         var isTaskSaved = await SaveRankWeekTaskAsync(seasonIndex, weekNum, isFinished);
-
+       
         if (isTaskSaved) await SaveRankInfoAsync(seasonIndex, weekNum, isFinished);
 
         var seasonTask =
             await _cacheProvider.GetAsync(WorkerOptions.RankWeekTaskPrefix + seasonIndex.Id);
-
+        
         if (bool.TryParse(seasonTask, out var isTaskFinished) && !isTaskFinished)
         {
+            // do seasonRanking
             await RefreshSeasonRankAsync(seasonIndex.Id, seasonIndex.PlayerSeasonRankCount);
             await _cacheProvider.SetAsync(WorkerOptions.RankWeekTaskPrefix + seasonIndex.Id, true.ToString(),
                 TimeSpan.FromDays(_workerOptions.TaskExpireDays));
         }
 
-        // if weekRanking is Finished,start seasonRanking 
+        // if weekRanking is Finished,start seasonRanking
+        // The seasonRanking task cannot be executed immediately after the weekRanking task due to a delay in ES
         if (isTaskSaved && isFinished)
             await _cacheProvider.SetAsync(WorkerOptions.RankWeekTaskPrefix + seasonIndex.Id, false.ToString(),
                 TimeSpan.FromDays(_workerOptions.TaskExpireDays));

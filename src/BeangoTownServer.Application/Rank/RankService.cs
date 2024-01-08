@@ -130,6 +130,7 @@ public class RankService : BeangoTownServerAppService, IRankService
         var userSeasonRankIndex = await _userSeasonWeekRepository.GetAsync(id);
         var weekRankDtos = await GetWeekRankDtoListAsync(getRankingHisDto);
         var seasonRankDto = ConvertSeasonRankDto(getRankingHisDto.CaAddress, userSeasonRankIndex, weekRankDtos);
+        // Add real-time data
         var rankingHisResultDto = await _rankProvider.GetRankingHistoryAsync(getRankingHisDto);
         if (!rankingHisResultDto.Weeks.IsNullOrEmpty())
             foreach (var weekRankDto in rankingHisResultDto.Weeks)
@@ -139,6 +140,7 @@ public class RankService : BeangoTownServerAppService, IRankService
                 if (!weekRankExists) weekRankDtos.Add(weekRankDto);
             }
 
+        // Add default data
         for (var i = 0; i < seasonIndex.WeekInfos.Count; i++)
         {
             if (seasonIndex.WeekInfos[i].RankBeginTime.CompareTo(DateTime.UtcNow) == 1) break;
