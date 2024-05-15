@@ -148,6 +148,8 @@ public class BeangoTownServerHttpApiHostModule : AbpModule
         app.UseAuditing();
         app.UseAbpSerilogEnrichers();
         app.UseConfiguredEndpoints();
+        
+        ConfigurationProvidersHelper.DisplayConfigurationProviders(context);
     }
 
     private void ConfigureLocalization()
