@@ -1,4 +1,4 @@
-﻿using AElf.ExceptionHandler;
+﻿using AElf.ExceptionHandler.ABP;
 using BeangoTownServer.Localization;
 using Volo.Abp.AuditLogging;
 using Volo.Abp.Localization;
