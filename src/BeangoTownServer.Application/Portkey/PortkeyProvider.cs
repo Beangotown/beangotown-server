@@ -31,7 +31,8 @@ public class PortkeyProvider : IPortkeyProvider, ISingletonDependency
     }
 
     [ExceptionHandler(typeof(Exception), TargetType = typeof(ExceptionHandlingService),
-        MethodName = nameof(ExceptionHandlingService.HandleGetCaHolderCreateTimeException))]
+        MethodName = nameof(ExceptionHandlingService.HandleGetCaHolderCreateTimeException),
+        Message = "GetCaHolderCreateTimeAsync error", LogTargets = new[] { "beanPassInput" })]
     public async Task<long> GetCaHolderCreateTimeAsync(BeanPassInput beanPassInput)
     {
         long timeStamp = 0;
@@ -47,7 +48,8 @@ public class PortkeyProvider : IPortkeyProvider, ISingletonDependency
     }
 
     [ExceptionHandler(typeof(Exception), TargetType = typeof(ExceptionHandlingService),
-        MethodName = nameof(ExceptionHandlingService.HandleGetTokenBalanceException))]
+        MethodName = nameof(ExceptionHandlingService.HandleGetTokenBalanceException),
+        Message = "GetTokenBalanceAsync error", LogTargets = new[] { "beanPassInput" })]
     public async Task<long> GetTokenBalanceAsync(BeanPassInput beanPassInput)
     {
         long balance = 0;
@@ -60,7 +62,7 @@ public class PortkeyProvider : IPortkeyProvider, ISingletonDependency
 
         var res = await _httpClientProvider.GetAsync(null, url);
         long.TryParse(JsonConvert.DeserializeObject<TokenInfoDto>(res).Balance, out balance);
-        
+
         return (long)ToPrice(balance, 8);
     }
 

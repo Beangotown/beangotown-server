@@ -6,20 +6,24 @@ using Volo.Abp;
 
 namespace BeangoTownServer;
 
-public class ExceptionHandlingService
+public static class ExceptionHandlingService
 {
     public static async Task<FlowBehavior> HandleException(Exception ex)
     {
         return new FlowBehavior
         {
             ExceptionHandlingStrategy = ExceptionHandlingStrategy.Return,
-            ReturnValue = true
+            ReturnValue = null
         };
     }
 
     public static async Task<FlowBehavior> HandleGetCaHolderCreateTimeException(Exception ex)
     {
-        throw new UserFriendlyException(BeangoTownConstants.SyncingMessage, BeangoTownConstants.SyncingCode);
+        return new FlowBehavior
+        {
+            ExceptionHandlingStrategy = ExceptionHandlingStrategy.Rethrow,
+            ReturnValue = new UserFriendlyException(BeangoTownConstants.SyncingMessage, BeangoTownConstants.SyncingCode)
+        };
     }
 
     public static async Task<FlowBehavior> HandleGetTokenBalanceException(Exception ex)
@@ -27,7 +31,7 @@ public class ExceptionHandlingService
         return new FlowBehavior
         {
             ExceptionHandlingStrategy = ExceptionHandlingStrategy.Return,
-            ReturnValue = true
+            ReturnValue = null
         };
     }
 }

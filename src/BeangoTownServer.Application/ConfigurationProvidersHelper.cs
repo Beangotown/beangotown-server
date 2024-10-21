@@ -15,7 +15,7 @@ public static class ConfigurationProvidersHelper
     /// </summary>
     /// <param name="context"></param>
     [ExceptionHandler(typeof(Exception), TargetType = typeof(ExceptionHandlingService),
-        MethodName = nameof(ExceptionHandlingService.HandleException))]
+        MethodName = nameof(ExceptionHandlingService.HandleException), Message = "display configuration providers error.")]
     public static void DisplayConfigurationProviders(ApplicationInitializationContext context)
     {
         var configuration = context.GetConfiguration();
