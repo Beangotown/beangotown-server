@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AElf.ExceptionHandler;
 using BeangoTownServer.Common;
 using BeangoTownServer.NFT;
 using Microsoft.Extensions.Logging;
@@ -29,6 +30,9 @@ public class PortkeyProvider : IPortkeyProvider, ISingletonDependency
         _portkeyOptions = portkeyOptions.Value;
     }
 
+    [ExceptionHandler(typeof(Exception), TargetType = typeof(ExceptionHandlingService),
+        MethodName = nameof(ExceptionHandlingService.HandleGetCaHolderCreateTimeException),
+        Message = "GetCaHolderCreateTimeAsync error", LogTargets = new[] { "beanPassInput" })]
     public async Task<long> GetCaHolderCreateTimeAsync(BeanPassInput beanPassInput)
     {
         long timeStamp = 0;
@@ -36,21 +40,16 @@ public class PortkeyProvider : IPortkeyProvider, ISingletonDependency
         {
             { "caAddress", beanPassInput.CaAddress }
         });
-        var url = string.Concat(_portkeyOptions.BaseUrl, _getCaHolderCreateTimeUrl, "?", paramStr);
-        try
-        {
-            var result = await _httpClientProvider.GetAsync(null, url);
-            long.TryParse(result, out timeStamp);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "GetCaHolderCreateTimeAsync error {CaAddress}", beanPassInput.CaAddress);
-            throw new UserFriendlyException(BeangoTownConstants.SyncingMessage, BeangoTownConstants.SyncingCode);
-        }
 
+        var url = string.Concat(_portkeyOptions.BaseUrl, _getCaHolderCreateTimeUrl, "?", paramStr);
+        var result = await _httpClientProvider.GetAsync(null, url);
+        long.TryParse(result, out timeStamp);
         return timeStamp;
     }
 
+    [ExceptionHandler(typeof(Exception), TargetType = typeof(ExceptionHandlingService),
+        MethodName = nameof(ExceptionHandlingService.HandleGetTokenBalanceException),
+        Message = "GetTokenBalanceAsync error", LogTargets = new[] { "beanPassInput" })]
     public async Task<long> GetTokenBalanceAsync(BeanPassInput beanPassInput)
     {
         long balance = 0;
@@ -61,15 +60,8 @@ public class PortkeyProvider : IPortkeyProvider, ISingletonDependency
         });
         var url = string.Concat(_portkeyOptions.BaseUrl, _tokenBalanceUrl, "?", paramStr);
 
-        try
-        {
-            var res = await _httpClientProvider.GetAsync(null, url);
-            long.TryParse(JsonConvert.DeserializeObject<TokenInfoDto>(res).Balance, out balance);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "GetCaHolderCreateTimeAsync error {CaAddress}", beanPassInput.CaAddress);
-        }
+        var res = await _httpClientProvider.GetAsync(null, url);
+        long.TryParse(JsonConvert.DeserializeObject<TokenInfoDto>(res).Balance, out balance);
 
         return (long)ToPrice(balance, 8);
     }
