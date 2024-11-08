@@ -58,7 +58,7 @@ public class BeangoTownServerHttpApiHostModule : AbpModule
         ConfigureConventionalControllers();
         //  ConfigureCache(context, configuration);
         ConfigureAuditing();
-        ConfigureEsIndexCreation();
+        // ConfigureEsIndexCreation();
         ConfigureLocalization();
         ConfigureCors(context, configuration);
         ConfigureSwaggerServices(context, configuration);
