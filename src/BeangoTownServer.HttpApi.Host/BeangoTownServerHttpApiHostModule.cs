@@ -56,7 +56,7 @@ public class BeangoTownServerHttpApiHostModule : AbpModule
         Configure<HalloweenActivityOptions>(configuration.GetSection("HalloweenActivity"));
         Configure<WorkerOptions>(configuration.GetSection("Worker"));
         ConfigureConventionalControllers();
-        // ConfigureCache(context, configuration);
+        //  ConfigureCache(context, configuration);
         ConfigureAuditing();
         ConfigureEsIndexCreation();
         ConfigureLocalization();
