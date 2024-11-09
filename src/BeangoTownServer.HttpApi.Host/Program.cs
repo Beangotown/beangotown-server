@@ -26,10 +26,12 @@ public class Program
             var app = builder.Build();
             await app.InitializeApplicationAsync();
             await app.RunAsync();
+            Log.Information("BeangoTownServer start success.");
             return 0;
         }
         catch (Exception ex)
         {
+            Log.Error(ex, "Starting web error.");
             if (ex is HostAbortedException) throw;
 
             Log.Fatal(ex, "Host terminated unexpectedly!");
