@@ -29,7 +29,6 @@ public class BeangoTownServerApplicationTestModule : AbpModule
     {
         context.Services.AddSingleton<ICacheProvider, MockCacheProvider>();
         Configure<AbpAutoMapperOptions>(options => { options.AddMaps<BeangoTownServerDomainModule>(); });
-
     }
 
     public override void ConfigureServices(ServiceConfigurationContext context)
